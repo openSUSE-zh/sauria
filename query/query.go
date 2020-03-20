@@ -18,19 +18,13 @@ func QueryUri(uri string) *goquery.Document {
 // QueryDom query dom to find matched nodes
 func QueryDom(dom interface{}, pattern string) []string {
 	var s []string
-	d, ok := dom.(*goquery.Document)
+	d, ok := dom.(interface {
+		Find(p string) *goquery.Selection
+	})
 	if ok {
 		d.Find(pattern).Each(func(i int, selection *goquery.Selection) {
 			s = append(s, strings.TrimSpace(selection.Text()))
 		})
-		return s
-	}
-	d1, ok := dom.(*goquery.Selection)
-	if ok {
-		d1.Find(pattern).Each(func(i int, selection *goquery.Selection) {
-			s = append(s, strings.TrimSpace(selection.Text()))
-		})
-
 	}
 	return s
 }
