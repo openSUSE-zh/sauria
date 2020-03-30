@@ -1,0 +1,8 @@
+- name: util
+  version:
+  plugin: github
+  url: https://github.com/marguerite/util
+  maintainer: MargueriteSu
+  email: marguerite#opensuse.org
+  unstable: true
+  genchange: true
