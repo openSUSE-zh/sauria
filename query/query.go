@@ -1,13 +1,13 @@
 package query
 
 import (
-	"github.com/PuerkitoBio/goquery"
 	"log"
-	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
-// QueryUri query an url to get dom tree
-func QueryUri(uri string) *goquery.Document {
+// URI query an url to get dom tree
+func URI(uri string) *goquery.Document {
 	dom, err := goquery.NewDocument(uri)
 	if err != nil {
 		log.Println(err)
@@ -15,15 +15,15 @@ func QueryUri(uri string) *goquery.Document {
 	return dom
 }
 
-// QueryDom query dom to find matched nodes
-func QueryDom(dom interface{}, pattern string) []string {
-	var s []string
+// Dom query dom to find matched nodes
+func Dom(dom interface{}, pattern string) []*goquery.Selection {
+	var s []*goquery.Selection
 	d, ok := dom.(interface {
 		Find(p string) *goquery.Selection
 	})
 	if ok {
 		d.Find(pattern).Each(func(i int, selection *goquery.Selection) {
-			s = append(s, strings.TrimSpace(selection.Text()))
+			s = append(s, selection)
 		})
 	}
 	return s

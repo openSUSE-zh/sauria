@@ -9,15 +9,16 @@ import (
 
 	"github.com/marguerite/util/dir"
 	"github.com/marguerite/util/slice"
-	"github.com/openSUSE/sauria/common"
+	"github.com/openSUSE/sauria/commit"
+	"github.com/openSUSE/sauria/configuration"
 )
 
 func main() {
 	cwd, _ := os.Getwd()
-	configs := parseYAML()
+	configs := configuration.ParseYAML()
 	plugins, err := dir.Ls("./plugins/*.so")
-	if err != nil {
-		fmt.Println("Can not find any plugin in plugins directory.")
+	if err != nil || len(plugins) == 0 {
+		fmt.Println("Can not find any plugin in plugins directory. Forgot to build them first?")
 		os.Exit(1)
 	}
 
@@ -34,8 +35,12 @@ func main() {
 				fmt.Printf("Can not find function FetchNewVersion in plugin %s\n", p)
 				os.Exit(1)
 			}
-			fn := fetch.(func(string, bool, bool) (common.Commit, error))
-			fmt.Println(fn(c.URL, c.Unstable, c.GenChange))
+			fn := fetch.(func(configuration.Configuration) (commit.Commit, error))
+			release, err := fn(c)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Println(release.UnstableVersion())
 		}
 	}
 }

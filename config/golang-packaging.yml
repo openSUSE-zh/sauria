@@ -1,9 +1,9 @@
-- name: util
+- name: golang-packaging
   version:
   plugin: github
-  url: https://github.com/marguerite/util
+  url: https://github.com/marguerite/golang-packaging
   maintainer: MargueriteSu
   email: marguerite#opensuse.org
-  unstable: true
+  unstable: false
   genchange: true
   mtime: 2019-03-31 13:19:00
