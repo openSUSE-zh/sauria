@@ -1,0 +1,11 @@
+{
+    "name":"util",
+    "version":"",
+    "plugin":"github",
+    "url":"https://github.com/marguerite/util",
+    "maintainer":"MargueriteSu",
+    "email":"marguerite#opensuse.org",
+    "unstable":true,
+    "genchange":true,
+    "mtime":"2019-03-31 13:19:00"
+}

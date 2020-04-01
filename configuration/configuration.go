@@ -9,14 +9,15 @@ import (
 
 	"github.com/marguerite/util/dir"
 	"github.com/marguerite/util/slice"
-	yaml "gopkg.in/yaml.v2"
+	//yaml "gopkg.in/yaml.v2"
+	simplejson "github.com/bitly/go-simplejson"
 )
 
 // Configurations collection of individual configurations
 type Configurations []Configuration
 
 // Configuration basic configuration structure
-type Configuration struct {
+/*type Configuration struct {
 	Name            string `yaml:"name"`
 	Version         string `yaml:"version"`
 	PreviousVersion string `yaml:"previous"`
@@ -28,42 +29,51 @@ type Configuration struct {
 	GenChange       bool   `yaml:"genchange"`
 	MTime           string `yaml:"mtime"`
 	NonDigit        bool   `yaml:"nondigit"`
+}*/
+type Configuration *simplejson.Json
+
+func (c Configuration) StringAttr(s string) string {
+	json, ok := c.CheckGet(s)
+	if !ok {
+		fmt.Printf(".json doesn't contain attribute %s\n",s)
+		os.Exit(1)
+	}
+	return json.MustString()
 }
 
 // ModificationTime modification time in golang time
 func (c Configuration) ModificationTime() time.Time {
 	timeForm := "2006-01-02 15:04:05"
-	t, err := time.Parse(timeForm, c.MTime)
+	t, err := time.Parse(timeForm, c.StringAttr("ModificationTime"))
 	if err != nil {
-		fmt.Println("time format in .yml is wrong, correct format: 2020:03:31 13:27")
+		fmt.Println("time format in .json is wrong, correct format: 2020:03:31 13:27")
 		os.Exit(1)
 	}
 	return t
 }
 
-// ParseYAML parse .yml file in config directory
-func ParseYAML() Configurations {
+// ParseJson parse .json file in config directory
+func ParseJson() Configurations {
 	config := Configurations{}
-	ymls, err := dir.Ls("./config/*.yml")
+	jsons, err := dir.Ls("./config/*.json")
 
 	if err != nil {
-		fmt.Println("Can not find any .yml configuration in config directory.")
+		fmt.Println("Can not find any .json configuration in config directory.")
 		os.Exit(1)
 	}
 
-	for _, v := range ymls {
-		c := Configurations{}
+	for _, v := range jsons {
 		b, err := ioutil.ReadFile(v)
 		if err != nil {
 			fmt.Printf("Can not read file %s\n", v)
 			os.Exit(1)
 		}
-		err = yaml.Unmarshal(b, &c)
+		json, err = simplejson.NewJson(b)
 		if err != nil {
-			fmt.Printf("Can not load yaml configuration %s\n", v)
+			fmt.Printf("Can not load json configuration %s\n", v)
 			os.Exit(1)
 		}
-		slice.Concat(&config, c)
+		slice.Concat(&config, Configuration(json))
 	}
 	return config
 }
