@@ -2,6 +2,12 @@
 github.com/PuerkitoBio/goquery
 # github.com/andybalholm/cascadia v1.1.0
 github.com/andybalholm/cascadia
-# golang.org/x/net v0.0.0-20200202094626-16171245cfb2
+# github.com/bitly/go-simplejson v0.5.0
+github.com/bitly/go-simplejson
+# github.com/marguerite/util v0.0.0-20200227041307-e5df39a6ecd5
+github.com/marguerite/util/dir
+github.com/marguerite/util/slice
+github.com/marguerite/util
+# golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
 golang.org/x/net/html
 golang.org/x/net/html/atom

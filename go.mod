@@ -1,8 +1,10 @@
 module github.com/openSUSE/sauria
 
 require (
-	4d63.com/gochecknoglobals v0.0.0-20190306162314-7c3491d2b6ec // indirect
 	github.com/PuerkitoBio/goquery v1.5.1
-	github.com/alecthomas/gocyclo v0.0.0-20150208221726-aa8f8b160214 // indirect
-	golang.org/x/tools v0.0.0-20200331025713-a30bf2db82d4 // indirect
+	github.com/bitly/go-simplejson v0.5.0
+	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
+	github.com/kr/pretty v0.2.0 // indirect
+	github.com/marguerite/util v0.0.0-20200227041307-e5df39a6ecd5
+	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b // indirect
 )

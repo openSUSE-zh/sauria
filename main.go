@@ -15,7 +15,7 @@ import (
 
 func main() {
 	cwd, _ := os.Getwd()
-	configs := configuration.ParseYAML()
+	configs := configuration.ParseJson()
 	plugins, err := dir.Ls("./plugins/*.so")
 	if err != nil || len(plugins) == 0 {
 		fmt.Println("Can not find any plugin in plugins directory. Forgot to build them first?")
@@ -23,7 +23,8 @@ func main() {
 	}
 
 	for _, c := range configs {
-		p := filepath.Join(cwd, "plugins", c.Plugin+".so")
+		plug := c.StringAttr("plugin")
+		p := filepath.Join(cwd, "plugins", plug+".so")
 		if ok, err := slice.Contains(plugins, p); ok && err == nil {
 			plug, err := plugin.Open(p)
 			if err != nil {
@@ -35,7 +36,7 @@ func main() {
 				fmt.Printf("Can not find function FetchNewVersion in plugin %s\n", p)
 				os.Exit(1)
 			}
-			fn := fetch.(func(configuration.Configuration) (commit.Commit, error))
+			fn := fetch.(func(*configuration.Configuration) (commit.Commit, error))
 			release, err := fn(c)
 			if err != nil {
 				panic(err)

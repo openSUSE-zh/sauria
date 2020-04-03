@@ -12,11 +12,15 @@ import (
 )
 
 // FetchNewVersion fetch a new version from github
-func FetchNewVersion(c configuration.Configuration) (commit.Commit, error) {
+func FetchNewVersion(c *configuration.Configuration) (commit.Commit, error) {
 	var revision commit.Commit
 	timeForm := "Jan 02, 2006"
+	uri := c.StringAttr("url")
+	nondigit := c.BoolAttr("nondigit")
+	unstable := c.BoolAttr("unstable")
+	genChange := c.BoolAttr("genchange")
 
-	dom := query.Dom(query.URI(c.URL+"/releases"), "div[class=release-entry]")
+	dom := query.Dom(query.URI(uri+"/releases"), "div[class=release-entry]")
 	// len(dom) == 0 no release
 	if len(dom) > 0 {
 		dom1 := query.Dom(dom[0], "div[class*=label-latest]")
@@ -28,7 +32,7 @@ func FetchNewVersion(c configuration.Configuration) (commit.Commit, error) {
 			date := strings.TrimSpace(query.Dom(dom2[0], "div[class=release-header] p relative-time")[0].Text())
 			messages := query.Dom(dom2[0], "div[class=markdown-body] p")
 			re := regexp.MustCompile(`^\d+\.`)
-			if !c.NonDigit && !re.MatchString(release) {
+			if !nondigit && !re.MatchString(release) {
 				next = true
 			} else {
 				revision.Version = release
@@ -41,7 +45,7 @@ func FetchNewVersion(c configuration.Configuration) (commit.Commit, error) {
 		}
 		// commit release
 		if len(dom1) == 0 || next {
-			dom2 := query.Dom(query.URI(c.URL+"/releases"), "div[class*=release-timeline-tags] div[class=release-entry] div[class*=d-flex]")
+			dom2 := query.Dom(query.URI(uri+"/releases"), "div[class*=release-timeline-tags] div[class=release-entry] div[class*=d-flex]")
 			release := strings.TrimSpace(query.Dom(dom2[0], "h4[class*=commit-title] a")[0].Text())
 			date, _ := query.Dom(dom2[0], "span[class*=tag-timeline-date] relative-time")[0].Attr("datetime")
 			messages := query.Dom(dom2[0], "div[class=commit-desc] pre")
@@ -53,12 +57,12 @@ func FetchNewVersion(c configuration.Configuration) (commit.Commit, error) {
 			}
 		}
 	} else {
-		c.Unstable = true
+		unstable = true
 	}
 
-	if c.Unstable || c.GenChange && len(revision.Message) == 0 {
+	if unstable || genChange && len(revision.Message) == 0 {
 		//FIXME: 1. can't navigate to next commit page
-		dom1 := query.URI(c.URL + "/commits/master")
+		dom1 := query.URI(uri + "/commits/master")
 
 		lastModification := c.ModificationTime()
 		releaseTime := revision.Date
@@ -72,13 +76,13 @@ func FetchNewVersion(c configuration.Configuration) (commit.Commit, error) {
 					if len(revision.Version) == 0 {
 						revision.Version = "0.0.0"
 					}
-					if c.Unstable {
+					if unstable {
 						revision.Date = t
 						shas := query.Dom(dom1.Find("ol[class*=commit-group]").Eq(i), "div[class*=commit-links-group]>a")
 						revision.Sha = strings.TrimSpace(shas[0].Text())
 					}
 				}
-				if c.GenChange {
+				if genChange {
 					// for release without changelog, only allow commit messages before the release time.
 					if releaseTime.IsZero() || !releaseTime.IsZero() && t.Before(releaseTime) {
 						messages := query.Dom(dom1.Find("ol[class*=commit-group]").Eq(i), "p[class*=commit-title]>a")
